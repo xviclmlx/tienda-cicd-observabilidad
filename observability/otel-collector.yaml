@@ -1,0 +1,71 @@
+# OpenTelemetry Collector
+#  - Recibe trazas, métricas y logs OTLP del backend (RF-04)
+#  - Recolecta métricas del servidor EC2: CPU, RAM, red (ancho de banda), disco (RF-05)
+#  - Exporta todo a OpenObserve vía OTLP/HTTP
+receivers:
+  otlp:
+    protocols:
+      http:
+        endpoint: 0.0.0.0:4318
+      grpc:
+        endpoint: 0.0.0.0:4317
+
+  hostmetrics:
+    root_path: /hostfs
+    collection_interval: 15s
+    scrapers:
+      cpu:
+        metrics:
+          system.cpu.utilization:
+            enabled: true
+      load: {}
+      memory:
+        metrics:
+          system.memory.utilization:
+            enabled: true
+      network: {}
+      disk: {}
+      filesystem:
+        metrics:
+          system.filesystem.utilization:
+            enabled: true
+
+processors:
+  batch:
+    timeout: 5s
+  resource/host:
+    attributes:
+      - key: host.name
+        value: ${env:HOST_NAME}
+        action: upsert
+      - key: service.name
+        value: ec2-host
+        action: insert
+
+exporters:
+  otlphttp/openobserve:
+    endpoint: http://openobserve:5080/api/default
+    headers:
+      Authorization: "Basic ${env:O2_AUTH}"
+      stream-name: default
+  debug:
+    verbosity: basic
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlphttp/openobserve]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlphttp/openobserve]
+    metrics/host:
+      receivers: [hostmetrics]
+      processors: [resource/host, batch]
+      exporters: [otlphttp/openobserve]
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlphttp/openobserve]

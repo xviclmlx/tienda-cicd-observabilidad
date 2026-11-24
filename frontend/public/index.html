@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tienda · Panel</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- LOGIN -->
+  <section id="login-view" class="center">
+    <form id="login-form" class="card login">
+      <h1>Tienda</h1>
+      <p class="muted">Inicia sesión para continuar</p>
+      <label>Correo <input id="login-email" type="email" required autocomplete="username"></label>
+      <label>Contraseña <input id="login-password" type="password" required autocomplete="current-password"></label>
+      <button type="submit" id="login-submit">Entrar</button>
+      <p id="login-error" class="error" role="alert"></p>
+    </form>
+  </section>
+
+  <!-- APP -->
+  <section id="app-view" hidden>
+    <header class="topbar">
+      <strong>Tienda</strong>
+      <nav id="tabs">
+        <button data-tab="products" class="active">Productos</button>
+        <button data-tab="categories">Categorías</button>
+        <button data-tab="orders">Pedidos</button>
+        <button data-tab="users" class="admin-only">Usuarios</button>
+      </nav>
+      <span id="whoami" class="muted"></span>
+      <button id="logout" class="ghost">Salir</button>
+    </header>
+
+    <main>
+      <p id="toast" role="status"></p>
+
+      <!-- Productos -->
+      <div class="tab" id="tab-products">
+        <form id="product-form" class="card row admin-only">
+          <input type="hidden" id="product-id">
+          <input id="product-name" placeholder="Nombre" required>
+          <input id="product-price" type="number" step="0.01" min="0.01" placeholder="Precio" required>
+          <input id="product-stock" type="number" min="0" placeholder="Stock" required>
+          <select id="product-category" required></select>
+          <button type="submit" id="product-save">Guardar producto</button>
+          <button type="button" class="ghost" data-reset="product">Cancelar</button>
+        </form>
+        <table id="products-table"><thead><tr>
+          <th>ID</th><th>Nombre</th><th>Precio</th><th>Stock</th><th>Categoría</th><th></th>
+        </tr></thead><tbody></tbody></table>
+      </div>
+
+      <!-- Categorías -->
+      <div class="tab" id="tab-categories" hidden>
+        <form id="category-form" class="card row admin-only">
+          <input type="hidden" id="category-id">
+          <input id="category-name" placeholder="Nombre" required>
+          <input id="category-description" placeholder="Descripción">
+          <button type="submit" id="category-save">Guardar categoría</button>
+          <button type="button" class="ghost" data-reset="category">Cancelar</button>
+        </form>
+        <table id="categories-table"><thead><tr>
+          <th>ID</th><th>Nombre</th><th>Descripción</th><th></th>
+        </tr></thead><tbody></tbody></table>
+      </div>
+
+      <!-- Pedidos -->
+      <div class="tab" id="tab-orders" hidden>
+        <form id="order-form" class="card row">
+          <select id="order-product" required></select>
+          <input id="order-quantity" type="number" min="1" value="1" required>
+          <button type="submit" id="order-save">Crear pedido</button>
+        </form>
+        <table id="orders-table"><thead><tr>
+          <th>ID</th><th>Usuario</th><th>Artículos</th><th>Total</th><th>Fecha</th>
+        </tr></thead><tbody></tbody></table>
+      </div>
+
+      <!-- Usuarios -->
+      <div class="tab" id="tab-users" hidden>
+        <form id="user-form" class="card row">
+          <input type="hidden" id="user-id">
+          <input id="user-name" placeholder="Nombre" required>
+          <input id="user-email" type="email" placeholder="Correo" required>
+          <input id="user-password" type="password" placeholder="Contraseña (mín. 6)">
+          <select id="user-role"><option value="user">user</option><option value="admin">admin</option></select>
+          <button type="submit" id="user-save">Guardar usuario</button>
+          <button type="button" class="ghost" data-reset="user">Cancelar</button>
+        </form>
+        <table id="users-table"><thead><tr>
+          <th>ID</th><th>Nombre</th><th>Correo</th><th>Rol</th><th></th>
+        </tr></thead><tbody></tbody></table>
+      </div>
+    </main>
+  </section>
+
+  <script src="app.js"></script>
+</body>
+</html>

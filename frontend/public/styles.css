@@ -1,0 +1,31 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background: #f4f5f7; color: #1d2330; }
+[hidden] { display: none !important; }
+.center { min-height: 100vh; display: grid; place-items: center; }
+.card { background: #fff; border: 1px solid #e2e5ea; border-radius: 10px; padding: 16px; }
+.login { width: 340px; display: flex; flex-direction: column; gap: 12px; }
+.login h1 { margin: 0; }
+label { display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
+input, select { padding: 8px 10px; border: 1px solid #cfd4dc; border-radius: 6px; font: inherit; }
+button { padding: 8px 14px; border: 0; border-radius: 6px; background: #2457d6; color: #fff; font: inherit; cursor: pointer; }
+button.ghost { background: transparent; color: #2457d6; border: 1px solid #cfd4dc; }
+button.danger { background: #c62f2f; }
+button.small { padding: 4px 10px; font-size: 13px; }
+.muted { color: #6b7280; font-size: 14px; }
+.error { color: #c62f2f; min-height: 1em; margin: 0; }
+.topbar { display: flex; align-items: center; gap: 16px; padding: 12px 24px; background: #fff; border-bottom: 1px solid #e2e5ea; }
+.topbar nav { display: flex; gap: 4px; flex: 1; }
+.topbar nav button { background: transparent; color: #1d2330; }
+.topbar nav button.active { background: #e8eefc; color: #2457d6; }
+main { padding: 24px; max-width: 1100px; margin: 0 auto; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.row input, .row select { flex: 1; min-width: 120px; }
+table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #e2e5ea; border-radius: 10px; overflow: hidden; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #eef0f3; font-size: 14px; }
+th { background: #fafbfc; font-weight: 600; }
+td.actions { text-align: right; white-space: nowrap; }
+td.actions button { margin-left: 4px; }
+#toast { min-height: 1.4em; margin: 0 0 12px; font-size: 14px; }
+#toast.ok { color: #1f7a3a; }
+#toast.err { color: #c62f2f; }
+body:not(.is-admin) .admin-only { display: none !important; }

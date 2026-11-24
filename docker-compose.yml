@@ -1,0 +1,79 @@
+# Aplicación: 2 contenedores (frontend nginx:alpine + backend python:slim)
+# Observabilidad (solo en EC2): `docker compose --profile observability up -d`
+#   -> OpenObserve + OpenTelemetry Collector (hostmetrics) + agente de temperatura
+
+services:
+  backend:
+    build: ./backend
+    image: tienda-backend:latest
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: sqlite:////app/data/app.db
+      JWT_SECRET: ${JWT_SECRET:-cambia-esta-clave}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@tienda.com}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-Admin123!}
+      APP_VERSION: ${APP_VERSION:-dev}
+      APP_ENV: ${APP_ENV:-production}
+      OTEL_ENABLED: ${OTEL_ENABLED:-true}
+      OTEL_SERVICE_NAME: tienda-backend
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+    volumes:
+      - backend-data:/app/data
+
+  frontend:
+    build: ./frontend
+    image: tienda-frontend:latest
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-80}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  # ---------------- Observabilidad ----------------
+  openobserve:
+    profiles: ["observability"]
+    image: public.ecr.aws/zinclabs/openobserve:latest
+    restart: unless-stopped
+    environment:
+      ZO_ROOT_USER_EMAIL: ${O2_USER:-admin@tienda.com}
+      ZO_ROOT_USER_PASSWORD: ${O2_PASSWORD:-Complexpass#123}
+      ZO_DATA_DIR: /data
+    ports:
+      - "5080:5080"
+    volumes:
+      - o2-data:/data
+
+  otel-collector:
+    profiles: ["observability"]
+    image: otel/opentelemetry-collector-contrib:0.115.1
+    restart: unless-stopped
+    command: ["--config=/etc/otelcol/config.yaml"]
+    environment:
+      O2_AUTH: ${O2_AUTH}
+      HOST_NAME: ${HOST_NAME:-ec2-tienda}
+    volumes:
+      - ./observability/otel-collector.yaml:/etc/otelcol/config.yaml:ro
+      - /:/hostfs:ro
+    depends_on:
+      - openobserve
+
+  temp-agent:
+    profiles: ["observability"]
+    image: alpine:3.20
+    restart: unless-stopped
+    environment:
+      O2_URL: http://openobserve:5080
+      O2_AUTH: ${O2_AUTH}
+      HOST_NAME: ${HOST_NAME:-ec2-tienda}
+      INTERVAL: "30"
+    volumes:
+      - ./observability/temp-agent.sh:/temp-agent.sh:ro
+      - /sys/class:/host/sys/class:ro
+    command: ["sh", "/temp-agent.sh"]
+    depends_on:
+      - openobserve
+
+volumes:
+  backend-data:
+  o2-data:
