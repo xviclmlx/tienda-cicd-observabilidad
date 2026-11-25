@@ -95,9 +95,15 @@ push a main
 
 > **Temperatura:** las instancias EC2 son máquinas virtuales y AWS no expone sensores térmicos al sistema invitado. El agente `temp-agent` revisa primero `/sys/class/thermal` y `/sys/class/hwmon` (valor real, `estimated: false`). Si no encuentra sensor, envía una **estimación** basada en la carga de CPU (35 °C en reposo + hasta 45 °C a carga completa) con `estimated: true` y `source: "estimated-from-cpu-load"`. Esto debe explicarse en el reporte como limitación de la plataforma: la gráfica muestra la tendencia, no una lectura física.
 
-### Paneles sugeridos para el dashboard (RF-05 / RF-06)
+### Dashboard (RF-05 / RF-06 / criterio 3)
 
-Dashboards → New dashboard → Add panel → modo SQL:
+El dashboard **"Tienda · CI/CD y Observabilidad"** (15 paneles) se crea automáticamente; el script valida cada consulta antes de crearlo:
+
+```bash
+python observability/create_dashboard.py http://<IP_EC2>:5080 admin@tienda.com 'Complexpass#123'
+```
+
+Para crearlo a mano: Dashboards → New dashboard → Add panel → modo SQL:
 
 | Panel | Tipo | SQL |
 |---|---|---|
