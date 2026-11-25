@@ -196,7 +196,7 @@ def create_order(data: schemas.OrderIn, db: Session = Depends(get_db),
         price = float(prod.price)
         total += price * item.quantity
         order.items.append(OrderItem(product_id=prod.id, quantity=item.quantity, unit_price=price))
-    order.total = round(total * 2, 2)
+    order.total = round(total, 2)
     db.add(order)
     db.commit()
     return order
