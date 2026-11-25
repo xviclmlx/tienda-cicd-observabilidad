@@ -44,7 +44,7 @@ processors:
 
 exporters:
   otlphttp/openobserve:
-    endpoint: http://openobserve:5080/api/default
+    endpoint: ${env:O2_ENDPOINT}
     headers:
       Authorization: "Basic ${env:O2_AUTH}"
       stream-name: default
