@@ -193,6 +193,17 @@ panel("table", "Trazas recientes de peticiones HTTP",
       layout=(96, 77, 96, 14))
 
 
+# ---------- Fila 8: alertas (RF-06) ----------
+panel("table", "Alertas disparadas (RF-06)",
+      "Notificaciones enviadas por las alertas de OpenObserve (create_alerts.py)",
+      "alertas_disparadas", "logs",
+      "SELECT _timestamp AS x_axis_1, alerta AS x_axis_2, stream AS x_axis_3, "
+      "condicion AS x_axis_4, count(*) AS y_axis_1 FROM \"alertas_disparadas\" "
+      "GROUP BY x_axis_1, x_axis_2, x_axis_3, x_axis_4 ORDER BY x_axis_1 DESC",
+      [T, field("x_axis_2", "Alerta"), field("x_axis_3", "Stream"), field("x_axis_4", "Condición")],
+      [Y("Veces")], layout=(0, 91, 192, 12), decimals=0)
+
+
 def validate():
     end = int(time.time() * 1_000_000)
     start = end - 24 * 3600 * 1_000_000

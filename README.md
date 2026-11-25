@@ -119,16 +119,24 @@ Para crearlo a mano: Dashboards → New dashboard → Add panel → modo SQL:
 
 > Si algún nombre de columna difiere (las etiquetas OTel se aplanan, p. ej. `state`, `direction`), ábrelo primero en *Metrics/Logs → stream* para ver los campos exactos.
 
-### Alertas sugeridas (Alerts → Add alert, tipo programada, cada 1 min)
+### Alertas (RF-06)
 
-| Alerta | Stream | Condición |
+Se crean con un script. Es idempotente: si ya existen, las reemplaza.
+
+```bash
+python observability/create_alerts.py http://<IP_EC2>:5080 admin@tienda.com 'Complexpass#123'
+```
+
+| Alerta | Stream | Se dispara cuando (revisa cada 1 min, ventana de 5 min) |
 |---|---|---|
-| Pruebas fallidas / deploy bloqueado | `cicd_events` (logs) | `status = 'failure'` → count ≥ 1 |
-| Tasa de errores 5xx | `default` (logs) | `status_code >= 500` → count ≥ 5 en 5 min |
-| CPU alta | `system_cpu_utilization` | promedio de `value` (state ≠ idle) > 0.8 |
-| RAM alta | `system_memory_utilization` | `state = 'used'` promedio > 0.85 |
+| `pipeline_cicd_fallido` | `cicd_events` | hay eventos con `status = 'failure'` (pruebas fallidas o deploy bloqueado) |
+| `errores_http_altos` | `default` (logs) | 10 o más respuestas 4xx/5xx |
+| `cpu_ec2_alta` | `system_cpu_utilization` | CPU promedio > 80 % |
+| `ram_ec2_alta` | `system_memory_utilization` | RAM promedio > 85 % |
 
-Destino: Alerts → Destinations → webhook o correo.
+**Destino:** webhook HTTP `tienda_registro_alertas` hacia el propio OpenObserve. Cada alerta disparada queda guardada en el stream de logs **`alertas_disparadas`**, que se ve en Logs y en el panel "Alertas disparadas" del dashboard, sin configurar SMTP ni Slack. OpenObserve bloquea webhooks a IPs privadas (protección SSRF), por eso el destino usa la URL pública del servidor.
+
+Para probarla: hacer 10 o más logins con contraseña incorrecta y esperar 1 o 2 minutos. `errores_http_altos` aparece en `alertas_disparadas`.
 
 ## 6. Demostrar los criterios de aceptación
 
